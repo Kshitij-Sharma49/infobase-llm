@@ -18,7 +18,7 @@ def return_predictions(file1, file2):
     substring1 = "conclusion"
     
     link1 = f'https://gateway.lighthouse.storage/ipfs/{file1}'
-    link2 = f'https://gateway.lighthouse.storage/ipfs/{file1}'
+    link2 = f'https://gateway.lighthouse.storage/ipfs/{file2}'
     
     textstr=''
     response = requests.get(link1)
