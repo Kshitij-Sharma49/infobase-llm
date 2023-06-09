@@ -92,7 +92,7 @@ def return_predictions(file1, file2):
     ]
     headers = {
         "content-type": "application/json",
-        "X-RapidAPI-Key": "52fb48fd7dmsh0b71e6ec5aa9659p195552jsn129611c1574a",
+        "X-RapidAPI-Key": "27af42f834msh74733b5484d6911p1e5002jsn1d23362f1c67",
         "X-RapidAPI-Host": "chatgpt-api8.p.rapidapi.com"
     }
 
