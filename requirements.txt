@@ -1,4 +1,6 @@
 Flask==2.0.2
 flask-cors==3.0.10
+requests==2.30.0
 PyPDF2
 pdfminer.six
+gunicorn==20.1.0
