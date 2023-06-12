@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import re
-import os
 import io
 import json
 import PyPDF2
@@ -108,6 +107,108 @@ def return_predictions(file1, file2):
     
     return jsonify({'message': text_data})
 
+
+@app.route('/quick_assistant_with_context/file1=<file1>', methods=['GET'])
+def llm_request_with_context(file1):
+    substring1 = "abstract"
+    
+    link1 = f'https://gateway.lighthouse.storage/ipfs/{file1}'
+    
+    textstr=''
+    response = requests.get(link1)
+    memory_file = io.BytesIO(response.content)
+    # Extract text from the PDF
+    textstr += (''.join(extract_text(memory_file)))  
+    print(f'{file1}.pdf loaded successfully.')   
+    
+    textstr = textstr.lower()
+
+    index = textstr.find(substring1)
+    result1 = textstr[index:index+600]
+    ind = index+500
+
+    while result1[-1] != '.':
+        result1 += textstr[ind]
+        ind=ind+1
+
+    result1 = re.sub(r'\s+', ' ', result1)
+
+    if request.json.get('rapidapi-key') is not None:
+        rapidapi_key = request.json.get('rapidapi-key')
+
+    else:
+        rapidapi_key = "49fba4d0demshb6a2281b6adae66p13613ajsnedf2f167f7ac"    
+
+    user_message = request.json.get('message')
+    
+    prompt = f'There is a research paper document with the given research abstract: ({result1}). With the context learned from the given abstract, can you please answer the following question: ({user_message})'
+            
+    url = "https://chatgpt-api8.p.rapidapi.com/"
+
+    payload = [
+        {
+            "content": prompt,
+            "role": "user"
+        }
+    ]
+    headers = {
+        "content-type": "application/json",
+        "X-RapidAPI-Key": rapidapi_key,
+        "X-RapidAPI-Host": "chatgpt-api8.p.rapidapi.com"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response_data = response.json()
+        print(response_data)
+        text_data = response_data['text']
+        # return jsonify(response_data)
+    
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)})
+    
+    return jsonify({'message': text_data})
+
+
+@app.route('/quick_assistant', methods=['POST'])
+def llm_request():
+    default_message = "" 
+    user_message = request.json.get('message')
+    
+    prompt = default_message + user_message
+
+    if request.json.get('rapidapi-key') is not None:
+        rapidapi_key = request.json.get('rapidapi-key')
+
+    else:
+        rapidapi_key = "49fba4d0demshb6a2281b6adae66p13613ajsnedf2f167f7ac"    
+
+            
+    url = "https://chatgpt-api8.p.rapidapi.com/"
+
+    payload = [
+        {
+            "content": prompt,
+            "role": "user"
+        }
+    ]
+    headers = {
+        "content-type": "application/json",
+        "X-RapidAPI-Key": rapidapi_key,
+        "X-RapidAPI-Host": "chatgpt-api8.p.rapidapi.com"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response_data = response.json()
+        print(response_data)
+        text_data = response_data['text']
+        # return jsonify(response_data)
+    
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)})
+    
+    return jsonify({'message': text_data})
 
 # api.add_resource(TestClass, "/next")    
 
